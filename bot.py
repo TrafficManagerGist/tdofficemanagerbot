@@ -12,11 +12,7 @@ headers = Headers(headers=True).generate()
 bot = telebot.TeleBot("2052379584:AAGFwBFk-pLVFiYrOujmCXCDOwengJRzGAs")
 NAME = "Офис менеджер бот"
 url = "http://35.208.32.33/bot/tdofficemanagerbot/"
-# ВМЕСТО example.com НА ПИШИТЕ ВАШ САЙТ ГДЕ ВЫ РАЗМЕСТИЛИ API (папку php из этого репозитория)
-# либо просто напишите мне @FSystem88_bot и я за скромную плату смогу разместить API и БД у себя на web сервере
-
-
-######################################################### / C O M M A N D S ##############################################################
+######################################################### V2 ##############################################################
 
 
 @bot.message_handler(commands=['start'])
@@ -142,8 +138,8 @@ def sends(message):
 	if message.text == "Отмена":
 		admins(message)
 	else:
-		res = r.post(url+"adm.php", data={"data":"user"}, headers=headers).json()
 		bot.send_message(message.chat.id, "Отправлено!")
+		res = r.post(url+"adm.php", data={"data":"user"}, headers=headers).json()
 		for user in res:
 			thread_list = []
 			t = threading.Thread (target=sends1, args=(message, user['tgid'], message.text))
@@ -251,7 +247,7 @@ def Main(message):
 		else:
 			if str(message.chat.id) not in owners():
 				r.post(url+"mess.php", data={"data":"new","tgid":message.chat.id,"name":message.chat.first_name,"username":message.chat.username,"text":message.text}, headers=headers)
-				bot.send_message(own, '''<b>Получен новый вопрос!</b>\n<b>От:</b> <a href='tg://user?id={}'>{}</a> (@{})\n<b>Текст:</b>\n<i>{}</i>'''.format(message.chat.id, message.chat.first_name, message.chat.username, message.text), parse_mode="html", reply_markup=key)
+				bot.send_message(message.chat.id, "Отправлено!")
 				for own in owners():
 					key = types.InlineKeyboardMarkup()
 					but1 = types.InlineKeyboardButton(text="Ответить", callback_data="reply{}".format(message.chat.id))
