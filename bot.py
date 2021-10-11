@@ -7,12 +7,13 @@ from telebot import types
 from threading import Thread
 
 from fake_headers import Headers
+
 headers = Headers(headers=True).generate()
 
 bot = telebot.TeleBot("2052379584:AAGFwBFk-pLVFiYrOujmCXCDOwengJRzGAs")
 NAME = "Офис менеджер бот"
 url = "http://35.208.32.33/bot/tdofficemanagerbot/"
-######################################################### V2 ##############################################################
+######################################################### / C O M M A N D S ##############################################################
 
 
 @bot.message_handler(commands=['start'])
@@ -29,9 +30,9 @@ def start(message):
 		if str(message.chat.id) in owners():
 			Home(message)
 		else:
-			bot.send_message(message.chat.id, "Привет! Это {}. \nЧего желаешь? (не забудь указать офис в запросе)".format(NAME))
 			for own in owners():
 				bot.send_message(own, "<b>New user:</b> <a href='tg://user?id={}'>{}</a>\n<b>Username:</b> @{}\n<b>iD:</b> <code>{}</code>\n".format(message.chat.id, message.chat.first_name, message.chat.username, message.chat.id), parse_mode="HTML")
+			bot.send_message(message.chat.id, "Привет! Это бот-помощник {}. \nВ чем твой вопрос?".format(NAME))
 	except:
 		pass
 
@@ -78,7 +79,7 @@ def Home(message):
 		keyboard.row('Cообщения','Админы')
 	else:
 		keyboard.row('Cообщения')
-	bot.send_message(message.chat.id, "<b>Привет мой любимый админ ♥</b>", reply_markup=keyboard, parse_mode="html")
+	bot.send_message(message.chat.id, "<b>Главная</b>", reply_markup=keyboard, parse_mode="html")
 
 
 def admins(message):
@@ -138,14 +139,13 @@ def sends(message):
 	if message.text == "Отмена":
 		admins(message)
 	else:
-		bot.send_message(message.chat.id, "Отправлено!")
 		res = r.post(url+"adm.php", data={"data":"user"}, headers=headers).json()
 		for user in res:
 			thread_list = []
 			t = threading.Thread (target=sends1, args=(message, user['tgid'], message.text))
 			thread_list.append(t)
 			t.start()
-
+		bot.send_message(message.chat.id, "Отправлено!")
 		Home(message)
 
 
@@ -247,13 +247,13 @@ def Main(message):
 		else:
 			if str(message.chat.id) not in owners():
 				r.post(url+"mess.php", data={"data":"new","tgid":message.chat.id,"name":message.chat.first_name,"username":message.chat.username,"text":message.text}, headers=headers)
-				bot.send_message(message.chat.id, "Отправлено!")
 				for own in owners():
 					key = types.InlineKeyboardMarkup()
 					but1 = types.InlineKeyboardButton(text="Ответить", callback_data="reply{}".format(message.chat.id))
 					but2 = types.InlineKeyboardButton(text="Удалить", callback_data="delete{}".format(message.chat.id))
 					key.add(but1, but2)
 					bot.send_message(own, '''<b>Получен новый вопрос!</b>\n<b>От:</b> <a href='tg://user?id={}'>{}</a> (@{})\n<b>Текст:</b>\n<i>{}</i>'''.format(message.chat.id, message.chat.first_name, message.chat.username, message.text), parse_mode="html", reply_markup=key)
+				bot.send_message(message.chat.id, "Сообщение отправлено!")
 	else:
 		bot.send_message(message.chat.id, "Вы заблокированы ‼️")
 
