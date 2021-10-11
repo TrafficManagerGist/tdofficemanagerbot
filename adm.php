@@ -15,6 +15,12 @@ if ($data == "admins")
 	$row = mysqli_fetch_all($result, MYSQLI_ASSOC);
 	echo json_encode($row);
 }
+elseif ($data == "users")
+{
+	$result = mysqli_query($link, "SELECT * FROM AdminsFeedback WHERE status WHERE 'user'");
+	$row = mysqli_fetch_all($result, MYSQLI_ASSOC);
+	echo json_encode($row);
+}
 elseif ($data == "god")
 {
 	$result = mysqli_query($link, "SELECT * FROM AdminsFeedback WHERE status='god'");

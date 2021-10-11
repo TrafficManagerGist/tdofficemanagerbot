@@ -87,6 +87,7 @@ def admins(message):
 	idgod = res[0]['tgid']
 	if str(message.chat.id) == idgod:
 		keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+		keyboard.row('Cписок юзеров')
 		keyboard.row('Добавить админа')
 		keyboard.row('Черный список','Добавить в ЧС')
 		keyboard.row('Отправить всем сообщение')
@@ -119,6 +120,14 @@ def admins1(message):
 				key = types.InlineKeyboardMarkup()
 				but = types.InlineKeyboardButton(text="Разблокировать", callback_data="delban{}".format(user['tgid']))
 				key.add(but)
+				bot.send_message(message.chat.id, "Имя: <a href='tg://user?id={}'>{}</a> (@{})\nID: <code>{}</code>".format(user['tgid'], user['name'], user['username'], user['tgid']), parse_mode="html", reply_markup=key)
+		bot.register_next_step_handler(message, admins1)
+	elif message.text == "Cписок юзеров":
+		res = r.post(url+"adm.php", data={"data":"users"}, headers=headers).json()
+		if res == []:
+			bot.send_message(message.chat.id, "Юзеров нету!")
+		else:
+			for user in res:
 				bot.send_message(message.chat.id, "Имя: <a href='tg://user?id={}'>{}</a> (@{})\nID: <code>{}</code>".format(user['tgid'], user['name'], user['username'], user['tgid']), parse_mode="html", reply_markup=key)
 		bot.register_next_step_handler(message, admins1)
 	elif message.text == "Добавить в ЧС":
@@ -213,6 +222,7 @@ def Messages1(message):
 				key = types.InlineKeyboardMarkup()
 				but1 = types.InlineKeyboardButton(text="Ответить", callback_data="reply{}".format(ask['tgid']))
 				but2 = types.InlineKeyboardButton(text="Удалить", callback_data="delete{}".format(ask['tgid']))
+				but3 = types.InlineKeyboardButton(text="Заблокировать", callback_data="delban{}".format(ask['tgid']))
 				key.add(but1, but2)
 				bot.send_message(message.chat.id, '''<b>От:</b> <a href='tg://user?id={}'>{}</a> (@{})\n<b>Текст:</b>\n<i>{}</i>'''.format(ask['tgid'], ask['name'], ask['username'], ask['text']), parse_mode="html", reply_markup=key)
 		bot.register_next_step_handler(message, Messages1)
