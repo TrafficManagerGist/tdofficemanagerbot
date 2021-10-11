@@ -10,9 +10,11 @@ from fake_headers import Headers
 headers = Headers(headers=True).generate()
 
 bot = telebot.TeleBot("2052379584:AAGFwBFk-pLVFiYrOujmCXCDOwengJRzGAs")
+NAME = "Офис менеджер бот"
+url = "http://35.208.32.33/bot/tdofficemanagerbot/"
+# ВМЕСТО example.com НА ПИШИТЕ ВАШ САЙТ ГДЕ ВЫ РАЗМЕСТИЛИ API (папку php из этого репозитория)
+# либо просто напишите мне @FSystem88_bot и я за скромную плату смогу разместить API и БД у себя на web сервере
 
-NAME = "Cтол заказов TD"
-url = "http://35.208.32.33/bot/"
 
 ######################################################### / C O M M A N D S ##############################################################
 
@@ -31,9 +33,9 @@ def start(message):
 		if str(message.chat.id) in owners():
 			Home(message)
 		else:
+			bot.send_message(message.chat.id, "Привет! Это {}. \nЧего желаешь? (не забудь указать офис в запросе)".format(NAME))
 			for own in owners():
 				bot.send_message(own, "<b>New user:</b> <a href='tg://user?id={}'>{}</a>\n<b>Username:</b> @{}\n<b>iD:</b> <code>{}</code>\n".format(message.chat.id, message.chat.first_name, message.chat.username, message.chat.id), parse_mode="HTML")
-			bot.send_message(message.chat.id, "Привет! Это Офис менеджер бот {}. \nЧего пожелаешь? (При запросе укажи офис)".format(NAME))
 	except:
 		pass
 
@@ -141,12 +143,13 @@ def sends(message):
 		admins(message)
 	else:
 		res = r.post(url+"adm.php", data={"data":"user"}, headers=headers).json()
+		bot.send_message(message.chat.id, "Отправлено!")
 		for user in res:
 			thread_list = []
 			t = threading.Thread (target=sends1, args=(message, user['tgid'], message.text))
 			thread_list.append(t)
 			t.start()
-		bot.send_message(message.chat.id, "Отправлено!")
+
 		Home(message)
 
 
@@ -248,13 +251,13 @@ def Main(message):
 		else:
 			if str(message.chat.id) not in owners():
 				r.post(url+"mess.php", data={"data":"new","tgid":message.chat.id,"name":message.chat.first_name,"username":message.chat.username,"text":message.text}, headers=headers)
+				bot.send_message(own, '''<b>Получен новый вопрос!</b>\n<b>От:</b> <a href='tg://user?id={}'>{}</a> (@{})\n<b>Текст:</b>\n<i>{}</i>'''.format(message.chat.id, message.chat.first_name, message.chat.username, message.text), parse_mode="html", reply_markup=key)
 				for own in owners():
 					key = types.InlineKeyboardMarkup()
 					but1 = types.InlineKeyboardButton(text="Ответить", callback_data="reply{}".format(message.chat.id))
 					but2 = types.InlineKeyboardButton(text="Удалить", callback_data="delete{}".format(message.chat.id))
 					key.add(but1, but2)
 					bot.send_message(own, '''<b>Получен новый вопрос!</b>\n<b>От:</b> <a href='tg://user?id={}'>{}</a> (@{})\n<b>Текст:</b>\n<i>{}</i>'''.format(message.chat.id, message.chat.first_name, message.chat.username, message.text), parse_mode="html", reply_markup=key)
-				bot.send_message(message.chat.id, "Сообщение отправлено!")
 	else:
 		bot.send_message(message.chat.id, "Вы заблокированы ‼️")
 
